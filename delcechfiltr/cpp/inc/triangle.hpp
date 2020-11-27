@@ -5,6 +5,7 @@ using namespace std;
 
 namespace delcechfiltr_tri {
 
+    double half_euclidean(vector<double> A, vector<double> B);
     double circumradius_2D(vector<vector<double>> points);
     double circumradius_3D(vector<vector<double>> points);
     double cech_parameter_2D(vector<vector<double>> points);

@@ -1,9 +1,9 @@
 import numpy as np
 from itertools import combinations
 
-from scipy.spatial.distance import euclidean
 from scipy.spatial import Delaunay
 
+import delcechfiltr.cpp.binding as _cpp
 import delcechfiltr.tri
 import delcechfiltr.tetra
 
@@ -59,7 +59,7 @@ def simplices_and_cech_param(points, stacked_output=True):
         sim1 = np.array([[ed[0], ed[1], -1] for ed in edges_del])
         simplices = np.vstack([sim0, sim1, tri_del])
 
-        param_edges = [euclidean(points[i], points[j]) / 2.0  for (i,j) in edges_del]
+        param_edges = [_cpp.half_euclidean(points[i], points[j])  for (i,j) in edges_del]
         param_tri = delcechfiltr.tri.cech_param_list(points, tri_del)
         parameterization = np.hstack([np.zeros(len(points)),
                                      param_edges,
@@ -77,7 +77,7 @@ def simplices_and_cech_param(points, stacked_output=True):
                          for tri in tri_del])
         simplices = np.vstack([sim0, sim1, sim2, tetra_del])
 
-        param_edges = [euclidean(points[i], points[j]) / 2.0  for (i,j) in edges_del]
+        param_edges = [_cpp.half_euclidean(points[i], points[j]) for (i,j) in edges_del]
         param_tri = delcechfiltr.tri.cech_param_list(points, tri_del)
         param_tetra = delcechfiltr.tetra.cech_param_list(points, tetra_del)
         parameterization = np.hstack([np.zeros(len(points)),
@@ -93,8 +93,7 @@ def simplices_and_cech_param(points, stacked_output=True):
         print("elements of `points` must be 2 or 3 dimensional")
         return None
 
-def cech(points, homology_coeff_field=2,
-         min_persistence=0.000000001, persistence_dim_max=True):
+def cech(points, homology_coeff_field=2, persistence_dim_max=True):
     """Cech persistence diagrams of two or three-dimensional points
     using `gudhi` and Cech filtration."""
     edges = list(combinations(range(len(points)), 2))
@@ -103,7 +102,7 @@ def cech(points, homology_coeff_field=2,
         tetra = list(combinations(range(len(points)), 4))
 
     st = SimplexTree()
-    param_edges = [euclidean(points[i], points[j]) / 2.0  for (i,j) in edges]
+    param_edges = [_cpp.half_euclidean(points[i], points[j]) for (i,j) in edges]
     param_tri = delcechfiltr.tri.cech_param_list(points, tri)
     if persistence_dim_max:
         param_tetra = delcechfiltr.tetra.cech_param_list(points, tetra)
@@ -119,7 +118,6 @@ def cech(points, homology_coeff_field=2,
             st.insert(te, r3)
     st.make_filtration_non_decreasing()
     dgms = st.persistence(homology_coeff_field=homology_coeff_field,
-                          min_persistence=min_persistence,
                           persistence_dim_max=persistence_dim_max)
     dgm0 = np.array([p for dim, p in dgms if dim == 0])
     dgm0 = dgm0[np.argsort(dgm0[:,1])]
@@ -135,13 +133,12 @@ def cech(points, homology_coeff_field=2,
     else:
         return dgm0, dgm1
 
-def delcech_2D(points, homology_coeff_field=2,
-               min_persistence=0.000000001, persistence_dim_max=True):
+def delcech_2D(points, homology_coeff_field=2, persistence_dim_max=True):
     """Cech persistence diagrams of two-dimensional points
     using `gudhi` and Delaunay-Cech filtration."""
     vert, edges_del, tri_del = delaunay_simplices(points)
     st = SimplexTree()
-    param_edges = [euclidean(points[i], points[j]) / 2.0  for (i,j) in edges_del]
+    param_edges = [_cpp.half_euclidean(points[i], points[j]) for (i,j) in edges_del]
     param_tri = delcechfiltr.tri.cech_param_list(points, tri_del)
     for i, v in enumerate(points):
         st.insert([i], 0.0)
@@ -151,7 +148,6 @@ def delcech_2D(points, homology_coeff_field=2,
         st.insert(t, r2)
     st.make_filtration_non_decreasing()
     dgms = st.persistence(homology_coeff_field=homology_coeff_field,
-                          min_persistence=min_persistence,
                           persistence_dim_max=persistence_dim_max)
     dgm0 = np.array([p for dim, p in dgms if dim == 0])
     dgm0 = dgm0[np.argsort(dgm0[:,1])]
@@ -159,14 +155,13 @@ def delcech_2D(points, homology_coeff_field=2,
     dgm1 = dgm1[np.argsort(dgm1[:,1])]
     return dgm0, dgm1
 
-def delcech_3D(points, homology_coeff_field=2,
-               min_persistence=0.000000001, persistence_dim_max=True):
+def delcech_3D(points, homology_coeff_field=2, persistence_dim_max=True):
     """Cech persistence diagrams of three-dimensional points
     using `gudhi` and Dekaunay-Cech filtration."""
     vert, edges_del, tri_del, tetra_del = delaunay_simplices(points)
 
     st = SimplexTree()
-    param_edges = [euclidean(points[i], points[j]) / 2.0  for (i,j) in edges_del]
+    param_edges = [_cpp.half_euclidean(points[i], points[j]) for (i,j) in edges_del]
     param_tri = delcechfiltr.tri.cech_param_list(points, tri_del)
     if persistence_dim_max:
         param_tetra = delcechfiltr.tetra.cech_param_list(points, tetra_del)
@@ -183,7 +178,6 @@ def delcech_3D(points, homology_coeff_field=2,
     st.make_filtration_non_decreasing()
 
     dgms = st.persistence(homology_coeff_field=homology_coeff_field,
-                          min_persistence=min_persistence,
                           persistence_dim_max=persistence_dim_max)
     dgm0 = np.array([p for dim, p in dgms if dim == 0])
     dgm0 = dgm0[np.argsort(dgm0[:,1])]

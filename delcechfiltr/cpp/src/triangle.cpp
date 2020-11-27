@@ -22,6 +22,14 @@ namespace delcechfiltr_tri {
         return sqrt(tot);
     }
 
+    double half_euclidean(vector<double> A, vector<double> B) {
+        double tot = 0.0;
+        for (size_t ind = 0; ind < A.size(); ++ind) {
+            tot = tot + (A[ind] - B[ind]) * (A[ind] - B[ind]);
+        }
+        return sqrt(tot) / 2.0;
+    }
+
     double magnitude(vector<double> A) {
         double tot = dot(A, A);
         return sqrt(tot);

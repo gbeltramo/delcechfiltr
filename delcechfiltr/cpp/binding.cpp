@@ -9,6 +9,7 @@ using namespace std;
 PYBIND11_MODULE(binding, m) {
     m.doc() = "";
 
+    m.def("half_euclidean", &delcechfiltr_tri::half_euclidean);
     m.def("triangle_circumradius_2D", &delcechfiltr_tri::circumradius_2D);
     m.def("triangle_circumradius_3D", &delcechfiltr_tri::circumradius_3D);
     m.def("triangle_cech_parameter_2D", &delcechfiltr_tri::cech_parameter_2D);
