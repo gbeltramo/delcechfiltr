@@ -36,7 +36,7 @@ Finally run the following command to build and install this Python package
 >>> pip install delcechfiltr
 ```
 
-If the command above fails to build this package, tehn you might want to clone
+If the command above fails to build this package, then you might want to clone
 this repository to a directory `delcechfiltr/` on your computer and run
 
 ```
