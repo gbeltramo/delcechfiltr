@@ -95,29 +95,50 @@ def simplices_and_cech_param(points, stacked_output=True):
 
 def cech(points, homology_coeff_field=2,
          min_persistence=0.000000001, persistence_dim_max=True):
+    """Cech persistence diagrams of two or three-dimensional points
+    using `gudhi` and Cech filtration."""
     edges = list(combinations(range(len(points)), 2))
     tri = list(combinations(range(len(points)), 3))
+    if persistence_dim_max:
+        tetra = list(combinations(range(len(points)), 4))
+
     st = SimplexTree()
     param_edges = [euclidean(points[i], points[j]) / 2.0  for (i,j) in edges]
     param_tri = delcechfiltr.tri.cech_param_list(points, tri)
+    if persistence_dim_max:
+        param_tetra = delcechfiltr.tetra.cech_param_list(points, tetra)
+
     for i, v in enumerate(points):
         st.insert([i], 0.0)
     for e, r1 in zip(edges, param_edges):
         st.insert(e, r1)
     for t, r2 in zip(tri, param_tri):
         st.insert(t, r2)
+    if persistence_dim_max:
+        for te, r3 in zip(tetra, param_tetra):
+            st.insert(te, r3)
     st.make_filtration_non_decreasing()
     dgms = st.persistence(homology_coeff_field=homology_coeff_field,
                           min_persistence=min_persistence,
                           persistence_dim_max=persistence_dim_max)
-    dgm0 = np.array([p for dim, p in dgms if dim == 0 and p[1] != float("inf")])
+    dgm0 = np.array([p for dim, p in dgms if dim == 0])
     dgm0 = dgm0[np.argsort(dgm0[:,1])]
     dgm1 = np.array([p for dim, p in dgms if dim == 1])
-    dgm1 = dgm1[np.argsort(dgm1[:,1])]
-    return dgm0, dgm1
+    if len(dgm1) > 0:
+        dgm1 = dgm1[np.argsort(dgm1[:,1])]
+
+    if persistence_dim_max:
+        dgm2 = np.array([p for dim, p in dgms if dim == 2])
+        if len(dgm2) > 0:
+            dgm2 = dgm2[np.argsort(dgm2[:,1])]
+        return dgm0, dgm1, dgm2
+    else:
+        return dgm0, dgm1
 
 def delcech_2D(points, homology_coeff_field=2,
                min_persistence=0.000000001, persistence_dim_max=True):
+    """Cech persistence diagrams of two-dimensional points
+    using `gudhi` and Delaunay-Cech filtration."""
     vert, edges_del, tri_del = delaunay_simplices(points)
     st = SimplexTree()
     param_edges = [euclidean(points[i], points[j]) / 2.0  for (i,j) in edges_del]
@@ -132,7 +153,7 @@ def delcech_2D(points, homology_coeff_field=2,
     dgms = st.persistence(homology_coeff_field=homology_coeff_field,
                           min_persistence=min_persistence,
                           persistence_dim_max=persistence_dim_max)
-    dgm0 = np.array([p for dim, p in dgms if dim == 0 and p[1] != float("inf")])
+    dgm0 = np.array([p for dim, p in dgms if dim == 0])
     dgm0 = dgm0[np.argsort(dgm0[:,1])]
     dgm1 = np.array([p for dim, p in dgms if dim == 1])
     dgm1 = dgm1[np.argsort(dgm1[:,1])]
@@ -140,23 +161,40 @@ def delcech_2D(points, homology_coeff_field=2,
 
 def delcech_3D(points, homology_coeff_field=2,
                min_persistence=0.000000001, persistence_dim_max=True):
-
+    """Cech persistence diagrams of three-dimensional points
+    using `gudhi` and Dekaunay-Cech filtration."""
     vert, edges_del, tri_del, tetra_del = delaunay_simplices(points)
+
     st = SimplexTree()
     param_edges = [euclidean(points[i], points[j]) / 2.0  for (i,j) in edges_del]
     param_tri = delcechfiltr.tri.cech_param_list(points, tri_del)
+    if persistence_dim_max:
+        param_tetra = delcechfiltr.tetra.cech_param_list(points, tetra_del)
+
     for i, v in enumerate(points):
         st.insert([i], 0.0)
-    for e, r in zip(edges_del, param_edges):
-        st.insert(e, r)
-    for t, r in zip(tri_del, param_tri):
-        st.insert(t, r)
+    for e, r1 in zip(edges_del, param_edges):
+        st.insert(e, r1)
+    for t, r2 in zip(tri_del, param_tri):
+        st.insert(t, r2)
+    if persistence_dim_max:
+        for te, r3 in zip(tetra_del, param_tetra):
+            st.insert(te, r3)
     st.make_filtration_non_decreasing()
+
     dgms = st.persistence(homology_coeff_field=homology_coeff_field,
                           min_persistence=min_persistence,
                           persistence_dim_max=persistence_dim_max)
-    dgm0 = np.array([p for dim, p in dgms if dim == 0 and p[1] != float("inf")])
+    dgm0 = np.array([p for dim, p in dgms if dim == 0])
     dgm0 = dgm0[np.argsort(dgm0[:,1])]
     dgm1 = np.array([p for dim, p in dgms if dim == 1])
-    dgm1 = dgm1[np.argsort(dgm1[:,1])]
-    return dgm0, dgm1
+    if len(dgm1) > 0:
+        dgm1 = dgm1[np.argsort(dgm1[:,1])]
+
+    if persistence_dim_max:
+        dgm2 = np.array([p for dim, p in dgms if dim == 2])
+        if len(dgm2) > 0:
+            dgm2 = dgm2[np.argsort(dgm2[:,1])]
+        return dgm0, dgm1, dgm2
+    else:
+        return dgm0, dgm1
