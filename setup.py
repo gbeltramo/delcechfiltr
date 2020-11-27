@@ -64,7 +64,7 @@ with open("README.md", "r") as f:
 
 setup(
     name = "delcechfiltr",
-    version = "0.0.1",
+    version = "1.0.0",
     author="Gabriele Beltramo",
     description = "Radius parameters of simplices in Delaunay-Cech filtration of 2D and 3D points.",
     long_description=long_description,
@@ -76,5 +76,6 @@ setup(
     url="https://github.com/gbeltramo/delcechfiltr",
     license='GPLv3',
     install_requires=['numpy', 'scipy'],
+    python_requires='>=3.1',
     keywords='Delaunay triangulation, Cech complexes, radius parameter'
 )

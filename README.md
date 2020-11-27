@@ -7,6 +7,10 @@ four points in three dimensions.
 These are used to produce Delaunay-Čech filtrations, which can be used to
 compute Čech persistence diagrams of points in two and three dimensions.
 
+Wrappers are provided for computing Čech persistence diagrams with
+<a href="http://gudhi.gforge.inria.fr/python/latest/">`gudhi`</a>
+for points in two and three dimensional space.
+
 ## Installation
 
 The `setuptools`, `numpy`, `scipy`, and `gudhi` Python packages are
@@ -31,6 +35,16 @@ Finally run the following command to build and install this Python package
 ```
 >>> pip install git+https://github.com/gbeltramo/delcechfiltr.git
 ```
+
+If the command above fails to build this package, tehn you might want to clone
+this repository to a directory `delcechfiltr/` on your computer and run
+
+```
+>>> cd /<path>/<to>/<cloned>/<repo>/delcechfiltr/
+>>> python setup.py install
+```
+
+which outputs more information on the errors causing the build to fail.
 
 **Windows.** After installing `conda`, run the above commands within an
 `Anaconda prompt`. For the C++ compiler install
