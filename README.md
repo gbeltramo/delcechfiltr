@@ -1,1 +1,1 @@
-# Delaunay-Cech filtrations
+# Delaunay-Čech filtrations
